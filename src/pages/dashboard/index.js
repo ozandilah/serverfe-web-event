@@ -1,27 +1,16 @@
 import React from "react";
-import { Container, Nav, Navbar, Table } from "react-bootstrap";
+import { Container, Table } from "react-bootstrap";
 import { Navigate } from "react-router-dom";
 import SBreadCrumb from "../../components/Breadcrumb";
 import SButton from "../../components/Button";
+import SNavbar from "../../components/Navbar";
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const token = localStorage.getItem("token");
   if (!token) return <Navigate to="/signin" replace={true} />;
   return (
     <>
-      <Navbar expand="lg" className="bg-body-tertiary" bg="dark" variant="dark">
-        <Container>
-          <Navbar.Brand href="#home">Semina</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link href="#home">Home</Nav.Link>
-              <Nav.Link href="#features">Categories</Nav.Link>
-              <Nav.Link href="#features">Talents</Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+      <SNavbar />
       <Container className="mt-3">
         <SBreadCrumb />
         <SButton>Tambah</SButton>
