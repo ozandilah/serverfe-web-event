@@ -1,73 +1,103 @@
 import React, { useEffect, useState } from "react";
-import { Container, Spinner, Table } from "react-bootstrap";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Container } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import SAlert from "../../components/Alert";
 import SBreadCrumb from "../../components/Breadcrumb";
-import SButton from "../../components/Button";
-import SNavbar from "../../components/Navbar";
-import axios from "axios";
-import { config } from "../../configs";
+import Button from "../../components/Button";
+import Table from "../../components/TableWithAction";
+import { accessCategories } from "../../const/access";
+import { fetchCategories } from "../../redux/categories/actions";
+import { setNotif } from "../../redux/notif/actions";
+import { deleteData } from "../../utils/fetch";
 
-export default function Categories() {
-  const token = localStorage.getItem("token");
-
-  const [data, setData] = useState([]);
-
+function Categories() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [isLoading, setisLoading] = useState(false);
-  console.log("data");
-  console.log(data);
+  const notif = useSelector((state) => state.notif);
+  const categories = useSelector((state) => state.categories);
+  const [access, setAccess] = useState({
+    tambah: false,
+    hapus: false,
+    edit: false,
+  });
+
+  const checkAccess = () => {
+    let { role } = localStorage.getItem("auth")
+      ? JSON.parse(localStorage.getItem("auth"))
+      : {};
+    const access = { tambah: false, hapus: false, edit: false };
+    Object.keys(accessCategories).forEach(function (key, index) {
+      if (accessCategories[key].indexOf(role) >= 0) {
+        access[key] = true;
+      }
+    });
+    setAccess(access);
+  };
 
   useEffect(() => {
-    const getCategoriesAPI = async () => {
-      setisLoading(true);
-      try {
-        const res = await axios.get(`${config.api_host_dev}/cms/categories`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log(res.data);
-        setisLoading(false);
-        setData(res.data.data);
-      } catch (error) {
-        setisLoading(false);
-        console.log(error);
-      }
-    };
-    getCategoriesAPI();
+    checkAccess();
   }, []);
 
-  if (!token) return <Navigate to="/signin" replace={true} />;
-  return (
-    <>
-      {console.log("render")}
-      <SNavbar />
-      <Container className="mt-3">
-        <SBreadCrumb textSecound="Categories" />
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
-        <SButton action={() => navigate("/categories/create")}>Tambah</SButton>
-        <Table className="mt-3" striped bordered hover variant="dark">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Name</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <Spinner />
-            ) : (
-              data.map((data, index) => (
-                <tr key={index}>
-                  <td>{(index += 1)}</td>
-                  <td>{data.name}</td>
-                  <td>Fadilah</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </Table>
-      </Container>
-    </>
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Apa kamu yakin?",
+      text: "Anda tidak akan dapat mengembalikan ini!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Iya, Hapus",
+      cancelButtonText: "Batal",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const res = await deleteData(`/cms/categories/${id}`);
+        dispatch(
+          setNotif(
+            true,
+            "success",
+            `berhasil hapus kategori ${res.data.data.name}`
+          )
+        );
+        dispatch(fetchCategories());
+      }
+    });
+  };
+
+  return (
+    <Container className="mt-3">
+      <SBreadCrumb textSecound={"Categories"} />
+
+      {access.tambah && (
+        <Button
+          className={"mb-3"}
+          action={() => navigate("/categories/create")}
+        >
+          Tambah
+        </Button>
+      )}
+
+      {notif.status && (
+        <SAlert type={notif.typeNotif} message={notif.message} />
+      )}
+
+      <Table
+        status={categories.status}
+        thead={["Nama", "Aksi"]}
+        data={categories.data}
+        tbody={["name"]}
+        editUrl={access.edit ? `/categories/edit` : null}
+        deleteAction={access.hapus ? (id) => handleDelete(id) : null}
+        withoutPagination
+      />
+    </Container>
   );
 }
+
+export default Categories;
