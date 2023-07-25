@@ -34,19 +34,29 @@ function PageSignIn() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    try {
-      const res = await postData(`/cms/auth/sigin`, form);
-      dispatch(userLogin(res.data.data.token, res.data.data.role));
+
+    const res = await postData(`/cms/auth/sigin`, form);
+
+    if (res?.data?.data) {
+      dispatch(
+        userLogin(
+          res.data.data.token,
+          res.data.data.role,
+          res.data.data.refreshToken,
+          res.data.data.email
+        )
+      );
       setIsLoading(false);
       navigate("/");
-    } catch (error) {
+    } else {
       setIsLoading(false);
       setAlert({
         status: true,
-        message: error?.response?.data?.msg ?? "Internal Server Error",
+        message: res?.response?.data?.msg ?? "Internal Server Error",
         type: "danger",
       });
-      console.log(error.response.data.msg);
+
+      console.log(res.response.data.msg);
     }
   };
 

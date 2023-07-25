@@ -1,48 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { Container } from 'react-bootstrap';
-import BreadCrumb from '../../components/Breadcrumb';
-import Alert from '../../components/Alert';
-import Form from './form';
-import { postData } from '../../utils/fetch';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { setNotif } from '../../redux/notif/actions';
+import React, { useEffect, useState } from "react";
+import { Container } from "react-bootstrap";
+import BreadCrumb from "../../components/Breadcrumb";
+import Alert from "../../components/Alert";
+import Form from "./form";
+import { postData } from "../../utils/fetch";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setNotif } from "../../redux/notif/actions";
 import {
   fetchListCategories,
   fetchListTalents,
-} from '../../redux/lists/actions';
+} from "../../redux/lists/actions";
 
 function EventsCreate() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const lists = useSelector((state) => state.lists);
   const [form, setForm] = useState({
-    title: '',
-    price: '',
-    date: '',
-    file: '',
-    avatar: '',
-    about: '',
-    venueName: '',
-    tagline: '',
-    keyPoint: [''],
+    title: "",
+    price: "",
+    date: "",
+    file: "",
+    avatar: "",
+    about: "",
+    venueName: "",
+    tagline: "",
+    keyPoint: [""],
     tickets: [
       {
-        type: '',
-        status: '',
-        stock: '',
-        price: '',
+        type: "",
+        status: "",
+        stock: "",
+        price: "",
       },
     ],
-    category: '',
-    talent: '',
-    stock: '',
+    category: "",
+    talent: "",
+    stock: "",
   });
 
   const [alert, setAlert] = useState({
     status: false,
-    type: '',
-    message: '',
+    type: "",
+    message: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -54,17 +54,17 @@ function EventsCreate() {
 
   const uploadImage = async (file) => {
     let formData = new FormData();
-    formData.append('avatar', file);
-    const res = await postData('/cms/images', formData, true);
+    formData.append("avatar", file);
+    const res = await postData("/cms/images", formData, true);
     return res;
   };
 
   const handleChange = async (e) => {
-    if (e.target.name === 'avatar') {
+    if (e.target.name === "avatar") {
       if (
-        e?.target?.files[0]?.type === 'image/jpg' ||
-        e?.target?.files[0]?.type === 'image/png' ||
-        e?.target?.files[0]?.type === 'image/jpeg'
+        e?.target?.files[0]?.type === "image/jpg" ||
+        e?.target?.files[0]?.type === "image/png" ||
+        e?.target?.files[0]?.type === "image/jpeg"
       ) {
         var size = parseFloat(e.target.files[0].size / 3145728).toFixed(2);
 
@@ -72,13 +72,13 @@ function EventsCreate() {
           setAlert({
             ...alert,
             status: true,
-            type: 'danger',
-            message: 'Please select image size less than 3 MB',
+            type: "danger",
+            message: "Please select image size less than 3 MB",
           });
           setForm({
             ...form,
-            file: '',
-            [e.target.name]: '',
+            file: "",
+            [e.target.name]: "",
           });
         } else {
           const res = await uploadImage(e.target.files[0]);
@@ -93,17 +93,17 @@ function EventsCreate() {
         setAlert({
           ...alert,
           status: true,
-          type: 'danger',
-          message: 'type image png | jpg | jpeg',
+          type: "danger",
+          message: "type image png | jpg | jpeg",
         });
         setForm({
           ...form,
-          file: '',
-          [e.target.name]: '',
+          file: "",
+          [e.target.name]: "",
         });
       }
-    } else if (e.target.name === 'category' || e.target.name === 'talent') {
-      console.log('e.target.name');
+    } else if (e.target.name === "category" || e.target.name === "talent") {
+      console.log("e.target.name");
       console.log(e.target.name);
       setForm({ ...form, [e.target.name]: e });
     } else {
@@ -129,24 +129,24 @@ function EventsCreate() {
       tickets: form.tickets,
     };
 
-    const res = await postData('/cms/events', payload);
+    const res = await postData("/cms/events", payload);
 
     if (res.data.data) {
       dispatch(
         setNotif(
           true,
-          'success',
+          "success",
           `berhasil tambah events ${res.data.data.title}`
         )
       );
-      navigate('/events');
+      navigate("/events");
       setIsLoading(false);
     } else {
       setIsLoading(false);
       setAlert({
         ...alert,
         status: true,
-        type: 'danger',
+        type: "danger",
         message: res.response.data.msg,
       });
     }
@@ -162,7 +162,7 @@ function EventsCreate() {
 
   const handlePlusKeyPoint = () => {
     let _temp = [...form.keyPoint];
-    _temp.push('');
+    _temp.push("");
 
     setForm({ ...form, keyPoint: _temp });
   };
@@ -182,10 +182,10 @@ function EventsCreate() {
   const handlePlusTicket = () => {
     let _temp = [...form.tickets];
     _temp.push({
-      type: '',
-      status: '',
-      stock: '',
-      price: '',
+      type: "",
+      status: "",
+      stock: "",
+      price: "",
     });
 
     setForm({ ...form, tickets: _temp });
@@ -213,9 +213,9 @@ function EventsCreate() {
   return (
     <Container>
       <BreadCrumb
-        textSecound={'Events'}
-        urlSecound={'/events'}
-        textThird='Create'
+        textSecound={"Events"}
+        urlSecound={"/events"}
+        textThird="Create"
       />
       {alert.status && <Alert type={alert.type} message={alert.message} />}
       <Form

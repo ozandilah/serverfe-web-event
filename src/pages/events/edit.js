@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Container } from 'react-bootstrap';
-import BreadCrumb from '../../components/Breadcrumb';
-import Alert from '../../components/Alert';
-import Form from './form';
-import { getData, postData, putData } from '../../utils/fetch';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { setNotif } from '../../redux/notif/actions';
+import React, { useEffect, useState } from "react";
+import { Container } from "react-bootstrap";
+import BreadCrumb from "../../components/Breadcrumb";
+import Alert from "../../components/Alert";
+import Form from "./form";
+import { getData, postData, putData } from "../../utils/fetch";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setNotif } from "../../redux/notif/actions";
 import {
   fetchListCategories,
   fetchListTalents,
-} from '../../redux/lists/actions';
-import moment from 'moment';
+} from "../../redux/lists/actions";
+import moment from "moment";
 
 function EventsCreate() {
   const navigate = useNavigate();
@@ -19,30 +19,30 @@ function EventsCreate() {
   const dispatch = useDispatch();
   const lists = useSelector((state) => state.lists);
   const [form, setForm] = useState({
-    title: '',
-    date: '',
-    file: '',
-    avatar: '',
-    about: '',
-    venueName: '',
-    tagline: '',
-    keyPoint: [''],
+    title: "",
+    date: "",
+    file: "",
+    avatar: "",
+    about: "",
+    venueName: "",
+    tagline: "",
+    keyPoint: [""],
     tickets: [
       {
-        type: '',
-        status: '',
-        stock: '',
-        price: '',
+        type: "",
+        status: "",
+        stock: "",
+        price: "",
       },
     ],
-    category: '',
-    talent: '',
+    category: "",
+    talent: "",
   });
 
   const [alert, setAlert] = useState({
     status: false,
-    type: '',
-    message: '',
+    type: "",
+    message: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +53,7 @@ function EventsCreate() {
     setForm({
       ...form,
       title: res.data.data.title,
-      date: moment(res.data.data.date).format('YYYY-MM-DDTHH:SS'),
+      date: moment(res.data.data.date).format("YYYY-MM-DDTHH:SS"),
       file: res.data.data.image._id,
       avatar: res.data.data.image.name,
       about: res.data.data.about,
@@ -62,12 +62,12 @@ function EventsCreate() {
       keyPoint: res.data.data.keyPoint,
       category: {
         label: res?.data?.data?.category?.name,
-        target: { name: 'category', value: res?.data?.data?.category?._id },
+        target: { name: "category", value: res?.data?.data?.category?._id },
         value: res?.data?.data?.category?._id,
       },
       talent: {
         label: res?.data?.data?.talent?.name,
-        target: { name: 'talent', value: res?.data?.data?.talent?._id },
+        target: { name: "talent", value: res?.data?.data?.talent?._id },
         value: res?.data?.data?.talent?._id,
       },
       tickets: res.data.data.tickets,
@@ -86,17 +86,17 @@ function EventsCreate() {
 
   const uploadImage = async (file) => {
     let formData = new FormData();
-    formData.append('avatar', file);
-    const res = await postData('/cms/images', formData, true);
+    formData.append("avatar", file);
+    const res = await postData("/cms/images", formData, true);
     return res;
   };
 
   const handleChange = async (e) => {
-    if (e.target.name === 'avatar') {
+    if (e.target.name === "avatar") {
       if (
-        e?.target?.files[0]?.type === 'image/jpg' ||
-        e?.target?.files[0]?.type === 'image/png' ||
-        e?.target?.files[0]?.type === 'image/jpeg'
+        e?.target?.files[0]?.type === "image/jpg" ||
+        e?.target?.files[0]?.type === "image/png" ||
+        e?.target?.files[0]?.type === "image/jpeg"
       ) {
         var size = parseFloat(e.target.files[0].size / 3145728).toFixed(2);
 
@@ -104,13 +104,13 @@ function EventsCreate() {
           setAlert({
             ...alert,
             status: true,
-            type: 'danger',
-            message: 'Please select image size less than 3 MB',
+            type: "danger",
+            message: "Please select image size less than 3 MB",
           });
           setForm({
             ...form,
-            file: '',
-            [e.target.name]: '',
+            file: "",
+            [e.target.name]: "",
           });
         } else {
           const res = await uploadImage(e.target.files[0]);
@@ -125,16 +125,16 @@ function EventsCreate() {
         setAlert({
           ...alert,
           status: true,
-          type: 'danger',
-          message: 'type image png | jpg | jpeg',
+          type: "danger",
+          message: "type image png | jpg | jpeg",
         });
         setForm({
           ...form,
-          file: '',
-          [e.target.name]: '',
+          file: "",
+          [e.target.name]: "",
         });
       }
-    } else if (e.target.name === 'category' || e.target.name === 'talent') {
+    } else if (e.target.name === "category" || e.target.name === "talent") {
       setForm({ ...form, [e.target.name]: e });
     } else {
       setForm({ ...form, [e.target.name]: e.target.value });
@@ -162,17 +162,17 @@ function EventsCreate() {
     const res = await putData(`/cms/events/${eventId}`, payload);
     if (res.data.data) {
       dispatch(
-        setNotif(true, 'success', `berhasil ubah events ${res.data.data.title}`)
+        setNotif(true, "success", `berhasil ubah events ${res.data.data.title}`)
       );
 
-      navigate('/events');
+      navigate("/events");
       setIsLoading(false);
     } else {
       setIsLoading(false);
       setAlert({
         ...alert,
         status: true,
-        type: 'danger',
+        type: "danger",
         message: res.response.data.msg,
       });
     }
@@ -188,7 +188,7 @@ function EventsCreate() {
 
   const handlePlusKeyPoint = () => {
     let _temp = [...form.keyPoint];
-    _temp.push('');
+    _temp.push("");
 
     setForm({ ...form, keyPoint: _temp });
   };
@@ -208,10 +208,10 @@ function EventsCreate() {
   const handlePlusTicket = () => {
     let _temp = [...form.tickets];
     _temp.push({
-      type: '',
-      status: '',
-      stock: '',
-      price: '',
+      type: "",
+      status: "",
+      stock: "",
+      price: "",
     });
 
     setForm({ ...form, tickets: _temp });
@@ -239,9 +239,9 @@ function EventsCreate() {
   return (
     <Container>
       <BreadCrumb
-        textSecound={'Events'}
-        urlSecound={'/events'}
-        textThird='Create'
+        textSecound={"Events"}
+        urlSecound={"/events"}
+        textThird="Edit"
       />
       {alert.status && <Alert type={alert.type} message={alert.message} />}
       <Form
